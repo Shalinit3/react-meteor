@@ -1,19 +1,19 @@
-import React, { Component } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
+import { Redirect } from 'react-router';
 import { Button, FormGroup, Jumbotron } from 'react-bootstrap';
+import { withTracker } from 'meteor/react-meteor-data';
+import InputField from '../components/inputField';
 
-import InputField from '../components/inputField'
-Meteor.subscribe('userData');
-
-class Signup extends Component {
+class Signup extends React.Component {
   constructor(props) {
     super(props)
 
     this.username=''
     this.password=''
-
     this.state = {
       username: '',
+      redirect: false,
     }
   }
 
@@ -23,13 +23,20 @@ class Signup extends Component {
 
   handleSubmit = () => {
     const { username, password } = this
-   Accounts.createUser({ username, password }, (err, res) => {
-    console.log(Meteor.users.find({}).fetch());
-   });
-    
+    Meteor.call('signup', { username, password }, (err, res) => {
+      if(err) {
+        this.setState ({redirect: false})
+      } else {
+        this.setState ({redirect: true})
+      }
+    })
   }
 
   render() {
+    const { redirect } = this.state
+    if(redirect) {
+      return <Redirect to= '/dashboard' />
+    }
     return (
       <Jumbotron>
         <FormGroup>
@@ -54,5 +61,12 @@ class Signup extends Component {
     )
   }
 }
+export default withTracker(() => {
+  Meteor.subscribe('userData');
 
-export default Signup
+  return {
+    users: Meteor.users.find({}).fetch(),
+  };
+})(Signup);
+
+// export default Signup

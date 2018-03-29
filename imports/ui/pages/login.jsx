@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Button, FormGroup, Jumbotron } from 'react-bootstrap';
+import { withTracker } from 'meteor/react-meteor-data';
 
 import InputField from '../components/inputField'
 
@@ -21,7 +22,7 @@ class Login extends Component {
   }
 
   handleSubmit = () => {
-    
+    console.log(this.props.users)
   }
 
   render() {
@@ -49,5 +50,11 @@ class Login extends Component {
     )
   }
 }
+export default withTracker(() => {
+  Meteor.subscribe('userData');
 
-export default Login
+  return {
+    users: Meteor.users.find({}).fetch(),
+  };
+})(Login);
+// export default Login
